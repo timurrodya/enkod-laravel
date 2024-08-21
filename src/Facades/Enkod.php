@@ -10,6 +10,7 @@ use Timurrodya\Enkod\Enkod as BaseEnkod;
  *
  * @package Timurrodya\Enkod\Facades
  * @method bool mail(int $messageId, string $email, array $snippets = [], array $attachments = [])
+ * @method bool mails(int $messageId, object $recipients)
  *
  * @see BaseEnkod
  */
