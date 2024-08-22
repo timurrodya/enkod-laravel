@@ -5,6 +5,7 @@ namespace Timurrodya\Enkod;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Support\Facades\Http;
+use stdClass;
 
 /**
  * Class Enkod
@@ -79,5 +80,45 @@ class Enkod
         ];
 
         return $this->client->withBody(json_encode($data), 'json')->post('mails')->ok();
+    }
+
+    /**
+     * Создание шаблона сообщения
+     *
+     * @see https://openapi.enkod.io/#tag/Emails/paths/~1v1~1message~1create~1/post
+     *
+     * @param  string  $subject
+     * @param  string  $fromEmail
+     * @param  string  $fromName
+     * @param  string  $html
+     * @param  string  $plainText
+     * @param  bool  $isTransaction
+     * @param  bool  $isActive
+     * @param  string|null  $replyToEmail
+     * @param  string|null  $replyToName
+     * @param  array  $tags
+     * @param  object  $utm
+     * @param  object  $urlParams
+     *
+     * @return array
+     */
+    public function messageCreate(
+        string $subject,
+        string $fromEmail,
+        string $fromName,
+        string $html,
+        string $plainText,
+        bool $isTransaction = false,
+        bool $isActive = false,
+        string $replyToEmail = null,
+        string $replyToName = null,
+        array $tags = [],
+        object $utm = new stdClass,
+        object $urlParams = new stdClass,
+    ): array {
+        $data =
+            compact('subject', 'fromEmail', 'fromName', 'html', 'plainText', 'isTransaction', 'isActive', 'replyToEmail', 'replyToName', 'tags', 'utm', 'urlParams');
+
+        return $this->client->withBody(json_encode($data), 'json')->post('message/create/')->json();
     }
 }

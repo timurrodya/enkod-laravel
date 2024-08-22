@@ -11,6 +11,7 @@ use Timurrodya\Enkod\Enkod as BaseEnkod;
  * @package Timurrodya\Enkod\Facades
  * @method bool mail(int $messageId, string $email, array $snippets = [], array $attachments = [])
  * @method bool mails(int $messageId, object $recipients)
+ * @method array messageCreate(string $subject, string $fromEmail, string $fromName, string $html, string $plainText, bool $isTransaction = false, bool $isActive = false, string $replyToEmail = null, string $replyToName = null, array $tags = [], object $utm = new stdClass, object $urlParams = new stdClass)
  *
  * @see BaseEnkod
  */
