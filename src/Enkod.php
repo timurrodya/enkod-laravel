@@ -100,6 +100,6 @@ class Enkod extends ApiClient
         $data =
             compact('subject', 'fromEmail', 'fromName', 'html', 'plainText', 'isTransaction', 'isActive', 'replyToEmail', 'replyToName', 'tags', 'utm', 'urlParams');
 
-        return $this->request('post', 'message/create11/', $data)->json();
+        return $this->request('post', 'message/create/', $data)->json();
     }
 }
