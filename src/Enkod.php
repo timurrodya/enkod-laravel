@@ -2,9 +2,7 @@
 
 namespace Timurrodya\Enkod;
 
-use Illuminate\Http\Client\ConnectionException;
-use Illuminate\Http\Client\PendingRequest;
-use Illuminate\Support\Facades\Http;
+use Exception;
 use stdClass;
 
 /**
@@ -12,28 +10,8 @@ use stdClass;
  *
  * @package Timurrodya\Enkod
  */
-class Enkod
+class Enkod extends ApiClient
 {
-    public PendingRequest $client;
-
-    public function __construct()
-    {
-        $baseUrl = sprintf(
-            "%s/%s",
-            rtrim((string) config('enkod.baseurl'), '/'),
-            rtrim(config('enkod.version'), '/'),
-        );
-
-        $this->client = Http::withHeaders([
-            'apiKey' => config('enkod.apiKey'),
-            'Accept' => 'application/json',
-        ])
-            ->baseUrl($baseUrl)
-            ->retry(3, 100, fn($exception): bool => $exception instanceof ConnectionException)
-            ->acceptJson()
-            ->contentType('application/json');
-    }
-
     /**
      * Отправка сообщения единственному получателю
      *
@@ -45,6 +23,7 @@ class Enkod
      * @param  array|null  $attachments
      *
      * @return bool
+     * @throws Exception
      */
     public function mail(int $messageId, string $email, ?array $snippets = null, ?array $attachments = null): bool
     {
@@ -59,7 +38,7 @@ class Enkod
             $data['attachments'] = $attachments;
         }
 
-        return $this->client->withBody(json_encode($data), 'json')->post('mail')->ok();
+        return $this->request('post', 'mail', $data)->ok();
     }
 
     /**
@@ -71,6 +50,7 @@ class Enkod
      * @param  object  $recipients
      *
      * @return bool
+     * @throws Exception
      */
     public function mails(int $messageId, object $recipients): bool
     {
@@ -79,7 +59,7 @@ class Enkod
             "recipients" => [$recipients],
         ];
 
-        return $this->client->withBody(json_encode($data), 'json')->post('mails')->ok();
+        return $this->request('post', 'mails', $data)->ok();
     }
 
     /**
@@ -100,7 +80,8 @@ class Enkod
      * @param  object  $utm
      * @param  object  $urlParams
      *
-     * @return array
+     * @return array|string
+     * @throws Exception
      */
     public function messageCreate(
         string $subject,
@@ -115,10 +96,10 @@ class Enkod
         array $tags = [],
         object $utm = new stdClass,
         object $urlParams = new stdClass,
-    ): array {
+    ): array|string {
         $data =
             compact('subject', 'fromEmail', 'fromName', 'html', 'plainText', 'isTransaction', 'isActive', 'replyToEmail', 'replyToName', 'tags', 'utm', 'urlParams');
 
-        return $this->client->withBody(json_encode($data), 'json')->post('message/create/')->json();
+        return $this->request('post', 'message/create11/', $data)->json();
     }
 }
