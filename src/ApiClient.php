@@ -44,6 +44,8 @@ class ApiClient
     public function request(string $method, string $url, array $data = []): PromiseInterface|Response
     {
         try {
+            $data = array_filter($data, fn($value) => ! is_null($value) && $value !== '');
+
             return $this->client->withBody(json_encode($data), 'json')->send($method, $url);
         } catch (RequestException $e) {
             throw new ApiException($e->getCode(), $e->response->json('message'));

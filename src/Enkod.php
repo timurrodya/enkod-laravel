@@ -2,6 +2,7 @@
 
 namespace Timurrodya\Enkod;
 
+use Carbon\Carbon;
 use Exception;
 use stdClass;
 
@@ -101,5 +102,31 @@ class Enkod extends ApiClient
             compact('subject', 'fromEmail', 'fromName', 'html', 'plainText', 'isTransaction', 'isActive', 'replyToEmail', 'replyToName', 'tags', 'utm', 'urlParams');
 
         return $this->request('post', 'message/create/', $data)->json();
+    }
+
+    /**
+     * Создание мгновенного, запланированного или черновика сообщения
+     *
+     * @see https://openapi.enkod.io/#tag/Emails/paths/~1v1~1message~1onetime~1/post
+     *
+     * @param  object  $message
+     * @param  bool  $isDraft
+     * @param  object|null  $to
+     * @param  Carbon|null  $deliveryDate
+     *
+     * @return array
+     * @throws Exception
+     */
+    public function messageOnetime(
+        object $message,
+        bool $isDraft = true,
+        object $to = null,
+        Carbon $deliveryDate = null,
+    ): array {
+        $data =
+            compact('message', 'isDraft', 'to');
+        $data['deliveryDate'] = $deliveryDate?->format('Y-m-d H:i');
+
+        return $this->request('post', 'message/onetime/', $data)->json();
     }
 }
