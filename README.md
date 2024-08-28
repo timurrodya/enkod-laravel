@@ -27,7 +27,12 @@ php artisan vendor:publish --provider='Timurrodya\Enkod\EnkodServiceProvider' --
 
 ## Методы
 
-- [Отправка сообщения единственному получателю](https://openapi.enkod.io/#tag/Emails/paths/~1v1~1mail~1/post) @method bool mail(int $messageId, string $email, array $snippets = [], array $attachments = [])
+- [Отправка сообщения единственному получателю](https://openapi.enkod.io/#tag/Emails/paths/~1v1~1mail~1/post) @method bool mail(int $messageId, string $email, array $snippets = [],
+  array $attachments = [])
 - [Отправка сообщения нескольким получателям](https://openapi.enkod.io/#tag/Emails/paths/~1v1~1mails~1/post) @method bool mails(int $messageId, object $recipients)
-- [Создание шаблона сообщения](https://openapi.enkod.io/#tag/Emails/paths/~1v1~1message~1create~1/post) @method array messageCreate(string $subject, string $fromEmail, string $fromName, string $html, string $plainText, bool $isTransaction = false, bool $isActive = false, string $replyToEmail = null, string $replyToName = null, array $tags = [], object $utm, object $urlParams)
+- [Создание шаблона сообщения](https://openapi.enkod.io/#tag/Emails/paths/~1v1~1message~1create~1/post) @method array messageCreate(string $subject, string $fromEmail, string
+  $fromName, string $html, string $plainText, bool $isTransaction = false, bool $isActive = false, string $replyToEmail = null, string $replyToName = null, array $tags = [], object
+  $utm, object $urlParams)
+- [Создание мгновенного, запланированного или черновика сообщения](https://openapi.enkod.io/#tag/Emails/paths/~1v1~1message~1onetime~1/post) @method array messageOnetime(object
+  $message, bool $isDraft = false, object $to = null, Carbon $deliveryDate = null)
  
