@@ -4,7 +4,10 @@ namespace Timurrodya\Enkod;
 
 use Carbon\Carbon;
 use Exception;
+use InvalidArgumentException;
 use stdClass;
+use Timurrodya\Enkod\Contracts\Dtoable;
+use Timurrodya\Enkod\Dto\SendEmailDto;
 
 /**
  * Class Enkod
@@ -18,28 +21,37 @@ class Enkod extends ApiClient
      *
      * @see https://openapi.enkod.io/#tag/Emails/paths/~1v1~1mail~1/post
      *
-     * @param  int  $messageId
-     * @param  string  $email
-     * @param  array|null  $snippets
-     * @param  array|null  $attachments
+     *
+     * @param  SendEmailDto|array{messageId: int, email: string, snippets?: array, attachments?: array}  $data
      *
      * @return bool
      * @throws Exception
      */
-    public function mail(int $messageId, string $email, ?array $snippets = null, ?array $attachments = null): bool
+    public function mail(SendEmailDto|array $data): bool
     {
-        $data = [
-            "messageId" => $messageId,
-            "email"     => $email,
-        ];
-        if (is_array($snippets) && ! empty($snippets)) {
-            $data['snippets'] = $snippets;
-        }
-        if (is_array($attachments) && ! empty($attachments)) {
-            $data['attachments'] = $attachments;
-        }
+        $dto = $this->resolveDto(SendEmailDto::class, $data);
 
-        return $this->request('post', 'mail', $data)->ok();
+        return $this->request('post', 'mail', $dto->toArray())->ok();
+    }
+
+    /**
+     * Универсальный метод преобразования в DTO
+     *
+     * @template T of Dtoable
+     * @param  class-string<T>  $dtoClass
+     * @param  Dtoable|array  $data
+     *
+     * @return Dtoable
+     */
+    protected function resolveDto(string $dtoClass, Dtoable|array $data): Dtoable
+    {
+        return match (true) {
+            $data instanceof $dtoClass => $data,
+            is_array($data) => $dtoClass::fromArray($data),
+            default => throw new InvalidArgumentException(
+                "Invalid input type, expected $dtoClass or array"
+            ),
+        };
     }
 
     /**
