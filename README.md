@@ -25,10 +25,35 @@ php artisan vendor:publish --provider='Timurrodya\Enkod\EnkodServiceProvider' --
 - `ENKOD_BASE_URL` - адрес Api Enkod по умолчанию https://api.enkod.ru/
 - `ENKOD_VERSION` - версия api, по умолчанию v1
 
-## Методы
+#### `mail` - Отправка сообщения единственному получателю
 
-- [Отправка сообщения единственному получателю](https://openapi.enkod.io/#tag/Emails/paths/~1v1~1mail~1/post) @method bool mail(int $messageId, string $email, array $snippets = [],
-  array $attachments = [])
+```php
+/**
+ * @param SendEmailDto|array{
+ *     messageId: int,
+ *     email: string,
+ *     snippets?: array,
+ *     attachments?: array
+ * } $data
+ * @return bool
+ * @throws Exception
+ */
+public function mail(SendEmailDto|array $data): bool
+// Через DTO объект
+$enkod->mail(new SendEmailDto(
+    messageId: 123,
+    email: 'user@example.com',
+    snippets: ['name' => 'John'],
+    attachments: ['file.pdf']
+));
+
+// Через массив (legacy поддержка)
+$enkod->mail([
+    'messageId' => 123,
+    'email' => 'user@example.com',
+    'snippets' => ['name' => 'John']
+]);
+
 - [Отправка сообщения нескольким получателям](https://openapi.enkod.io/#tag/Emails/paths/~1v1~1mails~1/post) @method bool mails(int $messageId, object $recipients)
 - [Создание шаблона сообщения](https://openapi.enkod.io/#tag/Emails/paths/~1v1~1message~1create~1/post) @method array messageCreate(string $subject, string $fromEmail, string
   $fromName, string $html, string $plainText, bool $isTransaction = false, bool $isActive = false, string $replyToEmail = null, string $replyToName = null, array $tags = [], object
