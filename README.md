@@ -53,6 +53,7 @@ $enkod->mail([
     'email' => 'user@example.com',
     'snippets' => ['name' => 'John']
 ]);
+```
 
 - [Отправка сообщения нескольким получателям](https://openapi.enkod.io/#tag/Emails/paths/~1v1~1mails~1/post) @method bool mails(int $messageId, object $recipients)
 - [Создание шаблона сообщения](https://openapi.enkod.io/#tag/Emails/paths/~1v1~1message~1create~1/post) @method array messageCreate(string $subject, string $fromEmail, string
