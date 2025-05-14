@@ -44,14 +44,25 @@ $enkod->mail(new SendEmailDto(
     messageId: 123,
     email: 'user@example.com',
     snippets: ['name' => 'John'],
-    attachments: ['file.pdf']
+    attachments : [
+        [
+            'fileName' => 'test.pdf',
+            'mimeType' => 'application/pdf',
+            'content' => 'JVBERi0xLjUNCiW1tbW1DQoxIDAgb2JqDQo8PC9UeXBlL0NhdGFsb2cvUGFnZXMgMiAwIFIvTGFu...'
+        ]
 ));
 
 // Через массив (legacy поддержка)
 $enkod->mail([
     'messageId' => 123,
     'email' => 'user@example.com',
-    'snippets' => ['name' => 'John']
+    'snippets' => ['name' => 'John'],
+    'attachments' => [
+        [
+            'fileName' => 'test.pdf',
+            'mimeType' => 'application/pdf',
+            'content' => 'JVBERi0xLjUNCiW1tbW1DQoxIDAgb2JqDQo8PC9UeXBlL0NhdGFsb2cvUGFnZXMgMiAwIFIvTGFu...'
+        ]
 ]);
 ```
 
