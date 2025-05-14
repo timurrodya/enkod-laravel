@@ -14,6 +14,7 @@ class SendEmailDto implements Dtoable
         public readonly ?array $attachments = null
     ) {
         $this->validate();
+        $this->validateAttachments();
     }
 
     protected function validate(): void
@@ -27,13 +28,35 @@ class SendEmailDto implements Dtoable
         }
     }
 
+    protected function validateAttachments(): void
+    {
+        if ($this->attachments === null) {
+            return;
+        }
+
+        foreach ($this->attachments as $attachment) {
+            if (! $attachment instanceof AttachmentDto) {
+                throw new InvalidArgumentException(
+                    "All attachments must be instances of AttachmentDto"
+                );
+            }
+        }
+    }
+
     public static function fromArray(array $data): self
     {
+        $attachments = isset($data['attachments'])
+            ? array_map(
+                fn(array $a) => AttachmentDto::fromArray($a),
+                $data['attachments']
+            )
+            : null;
+
         return new self(
             $data['messageId'],
             $data['email'],
             $data['snippets'] ?? null,
-            $data['attachments'] ?? null
+            $attachments
         );
     }
 
@@ -43,7 +66,12 @@ class SendEmailDto implements Dtoable
             'messageId'   => $this->messageId,
             'email'       => $this->email,
             'snippets'    => $this->snippets,
-            'attachments' => $this->attachments,
-        ], fn($value) => ! is_null($value));
+            'attachments' => $this->attachments
+                ? array_map(
+                    fn(AttachmentDto $a) => $a->toArray(),
+                    $this->attachments
+                )
+                : null,
+        ], fn($value) => $value !== null);
     }
 }
