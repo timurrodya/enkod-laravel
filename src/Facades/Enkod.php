@@ -14,6 +14,7 @@ use Timurrodya\Enkod\Enkod as BaseEnkod;
  * @method bool mails(int $messageId, object $recipients)
  * @method array messageCreate(string $subject, string $fromEmail, string $fromName, string $html, string $plainText, bool $isTransaction = false, bool $isActive = false, string $replyToEmail = null, string $replyToName = null, array $tags = [], object $utm = new stdClass, object $urlParams = new stdClass)
  * @method array messageOnetime(object $message, bool $isDraft = false, object $to = null, Carbon $deliveryDate = null)
+ * @method bool smtp(string $sendingDomain, \Timurrodya\Enkod\Dto\SmtpEmailDto|array $data)
  *
  * @see BaseEnkod
  */

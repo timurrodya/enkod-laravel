@@ -8,6 +8,7 @@ use InvalidArgumentException;
 use stdClass;
 use Timurrodya\Enkod\Contracts\Dtoable;
 use Timurrodya\Enkod\Dto\SendEmailDto;
+use Timurrodya\Enkod\Dto\SmtpEmailDto;
 
 /**
  * Class Enkod
@@ -140,5 +141,26 @@ class Enkod extends ApiClient
         $data['deliveryDate'] = $deliveryDate?->format('Y-m-d H:i');
 
         return $this->request('post', 'message/onetime/', $data)->json();
+    }
+
+    /**
+     * Отправка email-сообщения по API для работы с сервисом как с SMTP
+     *
+     * @see https://openapi.enkod.io/#/emails/paths/~1smtp~1{sendingdomain}~1/post
+     *
+     * @param  string  $sendingDomain  Домен отправки
+     * @param  SmtpEmailDto|array{to: string|array, subject: string, body?: string, html?: string, from?: string, fromName?: string, cc?: string|array, bcc?: string|array, replyTo?: string, attachments?: array}  $data  Данные для отправки
+     *
+     * @return bool
+     * @throws Exception
+     */
+    public function smtp(string $sendingDomain, SmtpEmailDto|array $data): bool
+    {
+        $dto = $this->resolveDto(SmtpEmailDto::class, $data);
+
+        // SMTP endpoint находится на корневом уровне без версии, используем относительный путь для выхода из версии
+        $url = sprintf('../smtp/%s/', $sendingDomain);
+
+        return $this->request('post', $url, $dto->toArray())->ok();
     }
 }
