@@ -5,8 +5,8 @@ namespace Timurrodya\Enkod;
 use Carbon\Carbon;
 use Exception;
 use InvalidArgumentException;
-use stdClass;
 use Timurrodya\Enkod\Contracts\Dtoable;
+use Timurrodya\Enkod\Dto\MessageCreateDto;
 use Timurrodya\Enkod\Dto\SendEmailDto;
 use Timurrodya\Enkod\Dto\SmtpEmailDto;
 
@@ -81,40 +81,29 @@ class Enkod extends ApiClient
      *
      * @see https://openapi.enkod.io/#tag/Emails/paths/~1v1~1message~1create~1/post
      *
-     * @param  string  $subject
-     * @param  string  $fromEmail
-     * @param  string  $fromName
-     * @param  string  $html
-     * @param  string  $plainText
-     * @param  bool  $isTransaction
-     * @param  bool  $isActive
-     * @param  string|null  $replyToEmail
-     * @param  string|null  $replyToName
-     * @param  array  $tags
-     * @param  object  $utm
-     * @param  object  $urlParams
+     * @param  MessageCreateDto|array{
+     *     subject: string,
+     *     fromEmail: string,
+     *     fromName: string,
+     *     html: string,
+     *     plainText: string,
+     *     isTransaction?: bool,
+     *     isActive?: bool,
+     *     replyToEmail?: string,
+     *     replyToName?: string,
+     *     tags?: array,
+     *     utm?: object,
+     *     urlParams?: object
+     * }  $data  Данные для создания шаблона сообщения
      *
      * @return array|string
      * @throws Exception
      */
-    public function messageCreate(
-        string $subject,
-        string $fromEmail,
-        string $fromName,
-        string $html,
-        string $plainText,
-        bool $isTransaction = false,
-        bool $isActive = false,
-        string $replyToEmail = null,
-        string $replyToName = null,
-        array $tags = [],
-        object $utm = new stdClass,
-        object $urlParams = new stdClass,
-    ): array|string {
-        $data =
-            compact('subject', 'fromEmail', 'fromName', 'html', 'plainText', 'isTransaction', 'isActive', 'replyToEmail', 'replyToName', 'tags', 'utm', 'urlParams');
+    public function messageCreate(MessageCreateDto|array $data): array|string
+    {
+        $dto = $this->resolveDto(\Timurrodya\Enkod\Dto\MessageCreateDto::class, $data);
 
-        return $this->request('post', 'message/create/', $data)->json();
+        return $this->request('post', 'message/create/', $dto->toArray())->json();
     }
 
     /**

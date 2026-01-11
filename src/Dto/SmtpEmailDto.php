@@ -111,15 +111,15 @@ class SmtpEmailDto implements Dtoable
     public function toArray(): array
     {
         return array_filter([
-            'to'         => $this->to,
-            'subject'    => $this->subject,
-            'body'       => $this->body,
-            'html'       => $this->html,
-            'from'       => $this->from,
-            'fromName'   => $this->fromName,
-            'cc'         => $this->cc,
-            'bcc'        => $this->bcc,
-            'replyTo'    => $this->replyTo,
+            'to'          => $this->to,
+            'subject'     => $this->subject,
+            'body'        => $this->body,
+            'html'        => $this->html,
+            'from'        => $this->from,
+            'fromName'    => $this->fromName,
+            'cc'          => $this->cc,
+            'bcc'         => $this->bcc,
+            'replyTo'     => $this->replyTo,
             'attachments' => $this->attachments
                 ? array_map(
                     fn(AttachmentDto $a) => $a->toArray(),
