@@ -8,6 +8,7 @@ use InvalidArgumentException;
 use Timurrodya\Enkod\Contracts\Dtoable;
 use Timurrodya\Enkod\Dto\MessageCreateDto;
 use Timurrodya\Enkod\Dto\SendEmailDto;
+use Timurrodya\Enkod\Dto\SmtpBatchEmailDto;
 use Timurrodya\Enkod\Dto\SmtpEmailDto;
 
 /**
@@ -152,4 +153,33 @@ class Enkod extends ApiClient
 
         return $this->request('post', $url, $dto->toArray())->ok();
     }
+
+    /**
+     * Отправка batch email-сообщений через v1/smtp/messages
+     *
+     * @see https://openapi.enkod.io/#/emails/paths/~1v1~1smtp~1messages~1/post
+     *
+     * @param  SmtpBatchEmailDto[]|array[]  $batch  Массив email-сообщений DTO или массивов
+     *
+     * @return bool
+     * @throws Exception
+     */
+    public function smtpMessages(array $batch): bool
+    {
+        $items = array_map(function ($item) {
+            if ($item instanceof SmtpBatchEmailDto) {
+                return $item->toArray();
+            } elseif (is_array($item)) {
+                $dto = SmtpBatchEmailDto::fromArray($item);
+
+                return $dto->toArray();
+            } else {
+                throw new InvalidArgumentException('Each batch item must be array or SmtpBatchEmailDto');
+            }
+        }, $batch);
+        $url = 'v1/smtp/messages';
+
+        return $this->request('post', $url, $items)->ok();
+    }
 }
+
