@@ -142,10 +142,159 @@ $enkod->smtp('example.com', [
 ]);
 ```
 
+#### `messageCreate` - Создание шаблона сообщения для отправки по API
+
+Метод создает шаблон email-сообщения в системе Enkod. Созданный шаблон можно использовать для отправки через методы `mail()` или `mails()`. 
+
+**Важно:** Этот метод создает шаблон сообщения, но не отправляет его. Для отправки используйте методы `mail()` или `mails()` с полученным `messageId`.
+
+```php
+/**
+ * @param MessageCreateDto|array{
+ *     subject: string,
+ *     fromEmail: string,
+ *     fromName: string,
+ *     html: string,
+ *     plainText: string,
+ *     isTransaction?: bool,
+ *     isActive?: bool,
+ *     replyToEmail?: string,
+ *     replyToName?: string,
+ *     tags?: array,
+ *     utm?: object,
+ *     urlParams?: object
+ * } $data
+ * @return array|string Возвращает массив с данными созданного сообщения (включая messageId) или строку с ошибкой
+ * @throws Exception
+ */
+public function messageCreate(MessageCreateDto|array $data): array|string
+```
+
+**Параметры:**
+
+- `subject` (string, обязательный) - Тема письма. Не может быть пустой.
+- `fromEmail` (string, обязательный) - Email адрес отправителя. Должен быть валидным email.
+- `fromName` (string, обязательный) - Имя отправителя. Не может быть пустым.
+- `html` (string, обязательный*) - HTML версия письма. Обязателен, если не указан `plainText`.
+- `plainText` (string, обязательный*) - Текстовая версия письма. Обязателен, если не указан `html`.
+- `isTransaction` (bool, опциональный, по умолчанию `false`) - Флаг транзакционного письма.
+- `isActive` (bool, опциональный, по умолчанию `false`) - Флаг активности шаблона.
+- `replyToEmail` (string, опциональный) - Email для ответа. Должен быть валидным email, если указан.
+- `replyToName` (string, опциональный) - Имя для ответа.
+- `tags` (array, опциональный, по умолчанию `[]`) - Массив тегов для категоризации сообщения.
+- `utm` (object, опциональный, по умолчанию `{}`) - Объект с UTM-метками для отслеживания.
+- `urlParams` (object, опциональный, по умолчанию `{}`) - Объект с дополнительными параметрами URL.
+
+**Валидация:**
+
+- `subject` не может быть пустой строкой
+- `fromEmail` должен быть валидным email адресом
+- `fromName` не может быть пустой строкой
+- Хотя бы один из `html` или `plainText` должен быть указан (не пустой)
+- `replyToEmail` должен быть валидным email, если указан
+- `tags` должен быть массивом
+- `utm` должен быть объектом
+- `urlParams` должен быть объектом
+
+**Примеры использования:**
+
+```php
+// Через DTO объект
+use Timurrodya\Enkod\Dto\MessageCreateDto;
+
+$result = $enkod->messageCreate(new MessageCreateDto(
+    subject: 'Добро пожаловать!',
+    fromEmail: 'noreply@example.com',
+    fromName: 'Команда Example',
+    html: '<html><body><h1>Добро пожаловать!</h1><p>Спасибо за регистрацию.</p></body></html>',
+    plainText: 'Добро пожаловать! Спасибо за регистрацию.',
+    isTransaction: false,
+    isActive: true,
+    replyToEmail: 'support@example.com',
+    replyToName: 'Служба поддержки',
+    tags: ['welcome', 'registration'],
+    utm: (object)['source' => 'website', 'medium' => 'email'],
+    urlParams: (object)['ref' => 'api']
+));
+
+// messageId можно получить из результата
+$messageId = $result['id'] ?? $result['messageId'] ?? null;
+
+// Теперь можно отправить сообщение используя созданный шаблон
+if ($messageId) {
+    $enkod->mail([
+        'messageId' => $messageId,
+        'email' => 'user@example.com',
+        'snippets' => ['name' => 'Иван']
+    ]);
+}
+```
+
+```php
+// Через массив (legacy поддержка)
+$result = $enkod->messageCreate([
+    'subject' => 'Добро пожаловать!',
+    'fromEmail' => 'noreply@example.com',
+    'fromName' => 'Команда Example',
+    'html' => '<html><body><h1>Добро пожаловать!</h1><p>Спасибо за регистрацию.</p></body></html>',
+    'plainText' => 'Добро пожаловать! Спасибо за регистрацию.',
+    'isTransaction' => false,
+    'isActive' => true,
+    'replyToEmail' => 'support@example.com',
+    'replyToName' => 'Служба поддержки',
+    'tags' => ['welcome', 'registration'],
+    'utm' => [
+        'source' => 'website',
+        'medium' => 'email'
+    ],
+    'urlParams' => [
+        'ref' => 'api'
+    ]
+]);
+```
+
+```php
+// Минимальный пример (только обязательные поля)
+$result = $enkod->messageCreate([
+    'subject' => 'Тестовое письмо',
+    'fromEmail' => 'sender@example.com',
+    'fromName' => 'Отправитель',
+    'html' => '<p>Привет!</p>',
+    'plainText' => 'Привет!'
+]);
+```
+
+**Возвращаемое значение:**
+
+Метод возвращает массив с данными созданного сообщения. Обычно содержит:
+- `id` или `messageId` - идентификатор созданного шаблона (используйте его для отправки)
+- Другие данные о созданном сообщении согласно API Enkod
+
+**Использование созданного шаблона:**
+
+После создания шаблона вы получите `messageId`, который можно использовать для отправки:
+
+```php
+// Создаем шаблон
+$result = $enkod->messageCreate([...]);
+$messageId = $result['id'] ?? $result['messageId'];
+
+// Отправляем одному получателю
+$enkod->mail([
+    'messageId' => $messageId,
+    'email' => 'user@example.com',
+    'snippets' => ['name' => 'Иван']
+]);
+
+// Или отправляем нескольким получателям
+$enkod->mails($messageId, (object)[
+    'email' => 'user1@example.com',
+    'snippets' => ['name' => 'Иван']
+]);
+```
+
 - [Отправка сообщения нескольким получателям](https://openapi.enkod.io/#tag/Emails/paths/~1v1~1mails~1/post) @method bool mails(int $messageId, object $recipients)
-- [Создание шаблона сообщения](https://openapi.enkod.io/#tag/Emails/paths/~1v1~1message~1create~1/post) @method array messageCreate(string $subject, string $fromEmail, string
-  $fromName, string $html, string $plainText, bool $isTransaction = false, bool $isActive = false, string $replyToEmail = null, string $replyToName = null, array $tags = [], object
-  $utm, object $urlParams)
+- [Создание шаблона сообщения](https://openapi.enkod.io/#tag/Emails/paths/~1v1~1message~1create~1/post) @method array|string messageCreate(MessageCreateDto|array $data)
 - [Создание мгновенного, запланированного или черновика сообщения](https://openapi.enkod.io/#tag/Emails/paths/~1v1~1message~1onetime~1/post) @method array messageOnetime(object
   $message, bool $isDraft = false, object $to = null, Carbon $deliveryDate = null)
 - [Отправка email-сообщения по API для работы с сервисом как с SMTP](https://openapi.enkod.io/#/emails/paths/~1smtp~1{sendingdomain}~1/post) @method bool smtp(string $sendingDomain, SmtpEmailDto|array $data)

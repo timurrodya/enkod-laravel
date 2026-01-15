@@ -78,7 +78,11 @@ class Enkod extends ApiClient
     }
 
     /**
-     * Создание шаблона сообщения
+     * Создание шаблона сообщения для отправки по API
+     *
+     * Метод создает шаблон email-сообщения в системе Enkod. Созданный шаблон можно использовать
+     * для отправки через методы mail() или mails() с полученным messageId.
+     *
      *
      * @see https://openapi.enkod.io/#tag/Emails/paths/~1v1~1message~1create~1/post
      *
@@ -97,7 +101,7 @@ class Enkod extends ApiClient
      *     urlParams?: object
      * }  $data  Данные для создания шаблона сообщения
      *
-     * @return array|string
+     * @return array|string  Массив с данными созданного сообщения (включая messageId) или строка с ошибкой
      * @throws Exception
      */
     public function messageCreate(MessageCreateDto|array $data): array|string
