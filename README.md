@@ -295,7 +295,74 @@ $enkod->mails($messageId, (object)[
 
 - [Отправка сообщения нескольким получателям](https://openapi.enkod.io/#tag/Emails/paths/~1v1~1mails~1/post) @method bool mails(int $messageId, object $recipients)
 - [Создание шаблона сообщения](https://openapi.enkod.io/#tag/Emails/paths/~1v1~1message~1create~1/post) @method array|string messageCreate(MessageCreateDto|array $data)
-- [Создание мгновенного, запланированного или черновика сообщения](https://openapi.enkod.io/#tag/Emails/paths/~1v1~1message~1onetime~1/post) @method array messageOnetime(object
-  $message, bool $isDraft = false, object $to = null, Carbon $deliveryDate = null)
+- [Создание мгновенного, запланированного или черновика сообщения](https://openapi.enkod.io/#/emails/paths/~1v1~1message~1onetime~1/post) @method array messageOnetime(MessageOnetimeDto|array $data)
 - [Отправка email-сообщения по API для работы с сервисом как с SMTP](https://openapi.enkod.io/#/emails/paths/~1smtp~1{sendingdomain}~1/post) @method bool smtp(string $sendingDomain, SmtpEmailDto|array $data)
- 
+
+#### `messageOnetime` - Создание мгновенного, запланированного или черновика сообщения
+
+Метод создает разовое сообщение (может быть черновиком или запланированным), которое можно сразу отправить конкретному получателю без предварительного сохранения шаблона.
+
+```php
+/**
+ * @param MessageOnetimeDto|array{
+ *     message: object|array,
+ *     isDraft?: bool,
+ *     to?: object|array|null,
+ *     deliveryDate?: string|\Carbon\Carbon|null // формат Y-m-d H:i или Carbon
+ * } $data
+ * @return array Ответ API Enkod в виде массива (json)
+ * @throws Exception
+ */
+public function messageOnetime(MessageOnetimeDto|array $data): array
+```
+
+**Параметры:**
+- `message` (MessageCreateDto|array, обязательный) — тело сообщения в формате DTO (поля как в `messageCreate`: `subject`, `fromEmail`, `fromName`, `html`, `plainText`, `replyToEmail`, `replyToName`, `tags`, `utm`, `urlParams`).
+- `isDraft` (bool, опционально, по умолчанию `true`) — флаг создания черновика.
+- `to` (object|array|null, опционально) — получатель (например `{ email: "user@example.com", snippets: { name: "Иван" } }`).
+- `deliveryDate` (string|Carbon|null, опционально) — время плановой отправки (`Y-m-d H:i`) или `Carbon`. Если не указано — немедленная отправка/сохранение черновика.
+
+**Валидация в DTO (`MessageOnetimeDto`):**
+- `message` должен быть `MessageCreateDto` или массив, который конвертируется в `MessageCreateDto`.
+- `to`, если указан, должен быть объектом (или массивом, который приведётся к объекту).
+- `deliveryDate`, если строка, парсится в `Carbon` и отправляется в формате `Y-m-d H:i`.
+
+**Примеры использования:**
+
+```php
+use Timurrodya\Enkod\Dto\MessageOnetimeDto;
+use Carbon\Carbon;
+
+// Немедленная отправка
+$result = $enkod->messageOnetime(new MessageOnetimeDto(
+    message: (object)[
+        'subject' => 'Разовая рассылка',
+        'fromEmail' => 'noreply@example.com',
+        'fromName' => 'Команда Example',
+        'html' => '<p>Привет!</p>',
+        'plainText' => 'Привет!'
+    ],
+    isDraft: false,
+    to: (object)[
+        'email' => 'user@example.com',
+        'snippets' => ['name' => 'Иван']
+    ]
+));
+
+// Черновик с запланированной отправкой
+$result = $enkod->messageOnetime([
+    'message' => [
+        'subject' => 'Запланированная отправка',
+        'fromEmail' => 'noreply@example.com',
+        'fromName' => 'Команда Example',
+        'html' => '<p>Добрый день!</p>',
+        'plainText' => 'Добрый день!'
+    ],
+    'isDraft' => true,
+    'to' => [
+        'email' => 'user@example.com',
+        'snippets' => ['name' => 'Иван']
+    ],
+    'deliveryDate' => Carbon::now()->addHour(), // или '2026-01-20 12:00'
+]);
+```

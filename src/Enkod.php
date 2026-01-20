@@ -7,6 +7,7 @@ use Exception;
 use InvalidArgumentException;
 use Timurrodya\Enkod\Contracts\Dtoable;
 use Timurrodya\Enkod\Dto\MessageCreateDto;
+use Timurrodya\Enkod\Dto\MessageOnetimeDto;
 use Timurrodya\Enkod\Dto\SendEmailDto;
 use Timurrodya\Enkod\Dto\SmtpBatchEmailDto;
 use Timurrodya\Enkod\Dto\SmtpEmailDto;
@@ -116,25 +117,21 @@ class Enkod extends ApiClient
      *
      * @see https://openapi.enkod.io/#tag/Emails/paths/~1v1~1message~1onetime~1/post
      *
-     * @param  object  $message
-     * @param  bool  $isDraft
-     * @param  object|null  $to
-     * @param  Carbon|null  $deliveryDate
+     * @param  MessageOnetimeDto|array{
+     *     message: MessageCreateDto|array,
+     *     isDraft?: bool,
+     *     to?: object|array|null,
+     *     deliveryDate?: string|\Carbon\Carbon|null
+     * }  $data  Данные сообщения (объект DTO или ассоциативный массив)
      *
-     * @return array
+     * @return array  Ответ API Enkod в виде массива
      * @throws Exception
      */
-    public function messageOnetime(
-        object $message,
-        bool $isDraft = true,
-        object $to = null,
-        Carbon $deliveryDate = null,
-    ): array {
-        $data =
-            compact('message', 'isDraft', 'to');
-        $data['deliveryDate'] = $deliveryDate?->format('Y-m-d H:i');
+    public function messageOnetime(MessageOnetimeDto|array $data): array
+    {
+        $dto = $this->resolveDto(MessageOnetimeDto::class, $data);
 
-        return $this->request('post', 'message/onetime/', $data)->json();
+        return $this->request('post', 'message/onetime/', $dto->toArray())->json();
     }
 
     /**
