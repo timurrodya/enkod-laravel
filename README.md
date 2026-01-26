@@ -296,7 +296,37 @@ $enkod->mails($messageId, (object)[
 - [Отправка сообщения нескольким получателям](https://openapi.enkod.io/#tag/Emails/paths/~1v1~1mails~1/post) @method bool mails(int $messageId, object $recipients)
 - [Создание шаблона сообщения](https://openapi.enkod.io/#tag/Emails/paths/~1v1~1message~1create~1/post) @method array|string messageCreate(MessageCreateDto|array $data)
 - [Создание мгновенного, запланированного или черновика сообщения](https://openapi.enkod.io/#/emails/paths/~1v1~1message~1onetime~1/post) @method array messageOnetime(MessageOnetimeDto|array $data)
+- [Получение контента сообщения по id](https://openapi.enkod.io/#/emails/paths/~1v1~1message~1{id}~1content~1/get) @method MessageContentDto getMessageContent(int $id)
 - [Отправка email-сообщения по API для работы с сервисом как с SMTP](https://openapi.enkod.io/#/emails/paths/~1smtp~1{sendingdomain}~1/post) @method bool smtp(string $sendingDomain, SmtpEmailDto|array $data)
+
+#### `getMessageContent` — получение контента сообщения по id
+
+Метод возвращает контент существующего сообщения (шаблона) по его идентификатору. Ответ приходит в виде DTO `MessageContentDto`.
+
+```php
+/**
+ * @param int $id Идентификатор сообщения
+ * @return MessageContentDto Контент сообщения (subject, fromEmail, fromName, html, plainText, tags, utm, urlParams и др.)
+ * @throws Exception
+ */
+public function getMessageContent(int $id): MessageContentDto
+```
+
+**Поля DTO ответа (`MessageContentDto`):** `id`, `subject`, `fromEmail`, `fromName`, `html`, `plainText`, `isTransaction`, `isActive`, `replyToEmail`, `replyToName`, `tags`, `utm`, `urlParams`.
+
+**Пример использования:**
+
+```php
+use Timurrodya\Enkod\Dto\MessageContentDto;
+
+$content = $enkod->getMessageContent(123);
+
+echo $content->subject;
+echo $content->fromEmail;
+echo $content->html;
+// или массив
+$array = $content->toArray();
+```
 
 #### `messageOnetime` - Создание мгновенного, запланированного или черновика сообщения
 

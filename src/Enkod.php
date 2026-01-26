@@ -2,10 +2,10 @@
 
 namespace Timurrodya\Enkod;
 
-use Carbon\Carbon;
 use Exception;
 use InvalidArgumentException;
 use Timurrodya\Enkod\Contracts\Dtoable;
+use Timurrodya\Enkod\Dto\MessageContentDto;
 use Timurrodya\Enkod\Dto\MessageCreateDto;
 use Timurrodya\Enkod\Dto\MessageOnetimeDto;
 use Timurrodya\Enkod\Dto\SendEmailDto;
@@ -135,6 +135,24 @@ class Enkod extends ApiClient
     }
 
     /**
+     * Получение контента сообщения по id
+     *
+     * @see https://openapi.enkod.io/#/emails/paths/~1v1~1message~1{id}~1content~1/get
+     *
+     * @param  int  $id  Идентификатор сообщения
+     *
+     * @return MessageContentDto  Контент сообщения
+     * @throws Exception
+     */
+    public function getMessageContent(int $id): MessageContentDto
+    {
+        $url = sprintf('message/%d/content/', $id);
+        $response = $this->request('get', $url, []);
+
+        return MessageContentDto::fromArray($response->json() ?? []);
+    }
+
+    /**
      * Отправка email-сообщения по API для работы с сервисом как с SMTP
      *
      * @see https://openapi.enkod.io/#/emails/paths/~1smtp~1{sendingdomain}~1/post
@@ -183,4 +201,3 @@ class Enkod extends ApiClient
         return $this->request('post', $url, $items)->ok();
     }
 }
-
