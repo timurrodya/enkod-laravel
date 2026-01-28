@@ -8,6 +8,7 @@ use Timurrodya\Enkod\Contracts\Dtoable;
 use Timurrodya\Enkod\Dto\MessageContentDto;
 use Timurrodya\Enkod\Dto\MessageCreateDto;
 use Timurrodya\Enkod\Dto\MessageOnetimeDto;
+use Timurrodya\Enkod\Dto\MessageSnippetsDto;
 use Timurrodya\Enkod\Dto\SendEmailDto;
 use Timurrodya\Enkod\Dto\SmtpBatchEmailDto;
 use Timurrodya\Enkod\Dto\SmtpEmailDto;
@@ -150,6 +151,24 @@ class Enkod extends ApiClient
         $response = $this->request('get', $url, []);
 
         return MessageContentDto::fromArray($response->json() ?? []);
+    }
+
+    /**
+     * Получение сниппетов сообщения по id
+     *
+     * @see https://openapi.enkod.io/#/emails/paths/~1v1~1message~1{id}~1snippets~1/get
+     *
+     * @param  int  $id  Идентификатор сообщения
+     *
+     * @return MessageSnippetsDto  Сниппеты сообщения
+     * @throws Exception
+     */
+    public function getMessageSnippets(int $id): MessageSnippetsDto
+    {
+        $url = sprintf('message/%d/snippets/', $id);
+        $response = $this->request('get', $url, []);
+
+        return MessageSnippetsDto::fromArray($response->json() ?? []);
     }
 
     /**

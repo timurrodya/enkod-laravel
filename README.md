@@ -297,6 +297,7 @@ $enkod->mails($messageId, (object)[
 - [Создание шаблона сообщения](https://openapi.enkod.io/#tag/Emails/paths/~1v1~1message~1create~1/post) @method array|string messageCreate(MessageCreateDto|array $data)
 - [Создание мгновенного, запланированного или черновика сообщения](https://openapi.enkod.io/#/emails/paths/~1v1~1message~1onetime~1/post) @method array messageOnetime(MessageOnetimeDto|array $data)
 - [Получение контента сообщения по id](https://openapi.enkod.io/#/emails/paths/~1v1~1message~1{id}~1content~1/get) @method MessageContentDto getMessageContent(int $id)
+- [Получение сниппетов сообщения по id](https://openapi.enkod.io/#/emails/paths/~1v1~1message~1{id}~1snippets~1/get) @method MessageSnippetsDto getMessageSnippets(int $id)
 - [Отправка email-сообщения по API для работы с сервисом как с SMTP](https://openapi.enkod.io/#/emails/paths/~1smtp~1{sendingdomain}~1/post) @method bool smtp(string $sendingDomain, SmtpEmailDto|array $data)
 
 #### `getMessageContent` — получение контента сообщения по id
@@ -328,6 +329,30 @@ echo $content->html;
 $array = $content->toArray();
 ```
 
+#### `getMessageSnippets` — получение сниппетов сообщения по id
+
+Метод возвращает список сниппетов (переменных) для сообщения/шаблона по его идентификатору. Ответ приходит в виде DTO `MessageSnippetsDto`.
+
+```php
+/**
+ * @param int $id Идентификатор сообщения
+ * @return MessageSnippetsDto Сниппеты сообщения
+ * @throws Exception
+ */
+public function getMessageSnippets(int $id): MessageSnippetsDto
+```
+
+**Поля DTO ответа (`MessageSnippetsDto`):** `messageId`, `snippets`.
+
+**Пример использования:**
+
+```php
+use Timurrodya\Enkod\Dto\MessageSnippetsDto;
+
+$snippetsDto = $enkod->getMessageSnippets(123);
+$snippets = $snippetsDto->snippets;
+```
+
 #### `messageOnetime` - Создание мгновенного, запланированного или черновика сообщения
 
 Метод создает разовое сообщение (может быть черновиком или запланированным), которое можно сразу отправить конкретному получателю без предварительного сохранения шаблона.
@@ -335,7 +360,7 @@ $array = $content->toArray();
 ```php
 /**
  * @param MessageOnetimeDto|array{
- *     message: object|array,
+ *     message: MessageCreateDto|array,
  *     isDraft?: bool,
  *     to?: object|array|null,
  *     deliveryDate?: string|\Carbon\Carbon|null // формат Y-m-d H:i или Carbon
